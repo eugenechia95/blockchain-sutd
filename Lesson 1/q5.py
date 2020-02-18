@@ -8,6 +8,8 @@ class MerkleNode:
     def __init__(self, hash):
         self.hash = hash
         self.parent = None
+        self.left_child = None
+        self.right_child = None
 
 class MerkleTree:
     
@@ -16,52 +18,65 @@ class MerkleTree:
     """
     def __init__(self, data_chunks):
         self.leaves = []
+        self.parents = []
 
         for chunk in data_chunks:
             node = MerkleNode(self.compute_hash(chunk))
             self.leaves.append(node)
 
-        self.root = self.build()
+        self.root = self.build(self.leaves)
 
     def add(data_chunks):
         # Add entries to tree
+        self.parents = []
         for chunk in data_chunks:
             node = MerkleNode(self.compute_hash(chunk))
             self.leaves.append(node)
 
-        self.root = self.build()
+        self.root = self.build(self.leaves)
 
-    def build():
+    def build(self, nodes):
         # Build tree computing new root
-        """
-        Builds the Merkle tree from a list of leaves. In case of an odd number of leaves, the last leaf is duplicated.
-        """
-        num_leaves = len(self.leaves)
-        if num_leaves == 1:
-            return leaves[0]
-
+        # Builds the Merkle tree from a list of leaves. In case of an odd number of leaves, the last leaf is duplicated.
         parents = []
+        num_nodes = len(nodes)
+        if num_nodes == 1:
+            return nodes[0]
 
         i = 0
-        while i < num_leaves:
-            left_child = self.leaves[i]
-            if (i+1) < num_leaves:
-                right_child = self.leaves[i + 1]
+        while i < num_nodes:
+            left_child = nodes[i]
+            if (i+1) < num_nodes:
+                right_child = nodes[i + 1]
             else:
                 right_child = left_child
-
-            parents.append(self.create_parent(left_child, right_child))
+            new_parents = self.create_parent(left_child, right_child)
+            parents.append(new_parents)
+            self.parents.append(new_parents)
 
             i += 2
 
-        return self.build_merkle_tree(parents)
+        return self.build(parents)
 
-    def get_proof(...):
-        # Get membership proof for entry
+    def get_proof(self, index):
+        # Get membership proof for entry; minimum number of nodes needed to find root
         # TODO: WHICH NODES ARE NEEDED TO PROVE
-        ...
+        leaf_node = self.leaves[index]
+        proof = []
+        current_node = leaf_node
+        while current_node.parent != None:
+            proof.append(self.get_other_child(current_node))
+            current_node = current_node.parent
+        return proof
 
-     def get_root():
+    def get_other_child(self, node):
+        parent_node = node.parent
+        if parent_node.left_child == node:
+            return parent_node.right_child
+        else:
+            return parent_node.left_child     
+
+    def get_root():
         # Return the current root
         self.root
 
@@ -73,9 +88,12 @@ class MerkleTree:
         parent = MerkleNode(
             self.compute_hash(left_child.hash + right_child.hash))
         left_child.parent, right_child.parent = parent, parent
+        
+        parent.left_child = left_child
+        parent.right_child = right_child
 
-        print("Left child: {}, Right child: {}, Parent: {}".format(
-            left_child.hash, right_child.hash, parent.hash))
+        # print("Left child: {}, Right child: {}, Parent: {}".format(
+        #     left_child.hash, right_child.hash, parent.hash))
         return parent
 
     
@@ -84,6 +102,21 @@ class MerkleTree:
         data = data.encode('utf-8')
         return sha256(data).hexdigest()
 
-def verify_proof(entry, proof, root):
-    # Verify the proof for the entry and given root. Returns boolean.
-    ...
+    @staticmethod
+    def verify_proof(entry, proof, root):
+        # Verify the proof for the entry and given root. Returns boolean.
+        current_computed = entry
+        for i in proof:
+            current_computed = MerkleTree.compute_hash(current_computed + i.hash) 
+        return current_computed == root.hash
+
+
+data_chunks = ["test", "testing", "testing1", "testing2"]
+mk = MerkleTree(data_chunks)
+print(mk.leaves)
+print(mk.parents)
+proof = mk.get_proof(0)
+print(proof)
+entry = MerkleTree.compute_hash("test")
+verification_status = MerkleTree.verify_proof(entry, proof, mk.root)
+print(verification_status)
