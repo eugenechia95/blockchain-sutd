@@ -1,50 +1,50 @@
-from ecdsa import SigningKey, NIST384p
-from json import JSONEncoder
-import json
+from hashlib import sha256
+import time
+import random
+import sys
 
-class Transaction:
+class Block:
   
-  def __init__(self, sender, receiver, amount, comment, signature):
-    # Instantiates object from passed values
-    self.sender = sender
-    self.receiver = receiver
-    self.amount = amount
-    self.comment = comment
-    self.signature = signature
+  def __init__(self, previous_block, merkle_tree):
+    self.transactions = merkle_tree
+    self.header = {
+      hash_previous: self.compute_hash(previous_block.header), 
+      hash_merkle_root: self.compute_hash(merkle_tree.root), 
+      timestamp: int(time.time()), 
+      nonce: random.getrandbits(32)
+    }
 
-  def serialize(self):
-    # Serializes object to CBOR or JSON string
-    return json.dumps(self, default=lambda obj: obj.__dict__)
+  @staticmethod
+  def compute_hash(data):
+    data = data.encode('utf-8')
+    return sha256(data).hexdigest()
+  
+class Blockchain:
 
+  MAX_BLOCK_SIZE = 1024 * 1024
 
-  @classmethod
-  def deserialize(cls, json_data):
-    # Instantiates/Deserializes object from CBOR or JSON string
-    deserialized = json.loads(json_data)
-    Transaction(deserialized["sender"], deserialized["receiver"], deserialized["amount"], deserialized["comment"], deserialized["signature"])
-    return deserialized
+  def __init__(self):
+    self.chain = []
+    self.target = random.getrandbits(32)
+    self.temp_chain = []
+  
+  def add(block):
+    if self.validate(block) == true:
+      self.temp_chain.push(block)
+      self.target = random.getrandbits(32)
+      return true
+    else:
+      return false
 
+  def validate(block):
+    if Block.compute_hash(block.header) > self.target:
+      return False
+    if self.chain[-1].header.timestamp > block.header.timestamp:
+      return False
+    if sys.getsizeof(block) < Blockchain.MAX_BLOCK_SIZE:
+      return False
+    if Block.compute_hash(self.chain[-1].header) != block.header.hash_previous:
+      return False
+    return True
 
-
-  def sign(private_key):
-    # Sign object with private key passed
-    # That can be called within new()
-    signature = sk.sign(bytes(self))
-    return signature
-
-
-
-  def validate(signature):
-    # Validate transaction correctness.
-    # Can be called within from_json()
-    assert vk.verify(signature, bytes(self))
-
-  # def __eq__(...):
-  #   # Check whether transactions are the same
-
-tx = Transaction("5", "5", "5", "5", "5")
-print(tx.sender)
-y = tx.serialize()
-z = Transaction.deserialize(y)
-print(y)
-print(z)
+print(random.getrandbits(32))
