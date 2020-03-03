@@ -43,7 +43,7 @@ class Blockchain:
         """
         self.unconfirmed_transactions = [] # data yet to get into blockchain
         self.chain = []
-        self.forked_chains = []
+        self.forked_chains = {}
         self.create_genesis_block()
 
     def add_new_transaction(self, transaction):
@@ -81,16 +81,18 @@ class Blockchain:
 
         return computed_hash
 
-    def add_block(self, block, proof, fork, index):
+    def add_block(self, block, proof, forkname=None, index=None):
         """
         A function that adds the block to the chain after verification.
         Verification includes:
         * Checking if the proof is valid.
         * The previous_hash referred in the block and the hash of a latest block
           in the chain match.
+        Miners can choose which fork to add to. If no fork selected, block adds to the main chain
         """
-        if fork == True:
-            selected_chain = (self.chain[0:index+1].copy())
+        if forkname != None:
+            index = len(self.chain) if index == None else index
+            selected_chain = self.chain[0:index+1]
         else:
             selected_chain = self.chain
 
@@ -105,7 +107,10 @@ class Blockchain:
 
         block.hash = proof
         selected_chain.append(block)
-        self.forked_chains.append(selected_chain)
+        
+        if forkname == True:
+            self.forked_chains[forkname] = selected_chain
+
         return True
 
     def validate(self, block, block_hash):
@@ -118,11 +123,11 @@ class Blockchain:
 
     def resolve(self):
         longest_chain = self.chain
-        for i in self.forked_chains:
-            if len(i) > len(longest_chain):
-                longest_chain = i
+        for k, v in self.forked_chains:
+            if len(v) > len(longest_chain):
+                longest_chain = v
         self.chain = longest_chain
-        return longest_chain.last_block
+        return self.chain.last_block
 
 class Miner:
 
@@ -132,7 +137,7 @@ class Miner:
         """
         self.coins = 0
 
-    def mine(self, blockchain, fork, index):
+    def mine(self, blockchain, forkname, index):
         """
         This function serves as an interface to add the pending
         transactions to the blockchain by adding them to the block
@@ -149,7 +154,7 @@ class Miner:
                           previous_hash=last_block.hash)
 
         proof = blockchain.proof_of_work(new_block)
-        blockchain.add_block(new_block, proof, fork, index)
+        blockchain.add_block(new_block, proof, forkname, index)
         blockchain.unconfirmed_transactions.pop(0)
         return new_block.index
 
@@ -158,5 +163,6 @@ mk = MerkleTree(data_chunks)
 blockchain = Blockchain()
 blockchain.add_new_transaction(mk)
 miner = Miner()
-miner.mine(blockchain, False, None)
+miner.mine(blockchain, None , None)
+print(blockchain.forked_chains)
 print(blockchain.chain)
