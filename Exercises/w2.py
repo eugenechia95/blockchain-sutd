@@ -35,15 +35,19 @@ class Block:
 class Blockchain:
 
     # difficulty of PoW algorithm
-    difficulty = 2
+    TARGET = 2
 
     def __init__(self):
         """
         Constructor for the `Blockchain` class.
         """
+        self.unconfirmed_transactions = [] # data yet to get into blockchain
         self.chain = []
         self.forked_chains = []
         self.create_genesis_block()
+
+    def add_new_transaction(self, transaction):
+        self.unconfirmed_transactions.append(transaction)
 
     def create_genesis_block(self):
         """
@@ -68,11 +72,11 @@ class Blockchain:
         Function that tries different values of the nonce to get a hash
         that satisfies our difficulty criteria.
         """
-        block.nonce = 0
+        block.header["nonce"] = 0
 
         computed_hash = Block.compute_hash(block.header)
-        while not computed_hash.startswith('0' * Blockchain.difficulty):
-            block.nonce += 1
+        while not computed_hash.startswith('0' * Blockchain.TARGET):
+            block.header["nonce"] += 1
             computed_hash = Block.compute_hash(block.header)
 
         return computed_hash
@@ -85,7 +89,7 @@ class Blockchain:
         * The previous_hash referred in the block and the hash of a latest block
           in the chain match.
         """
-        if fork == true:
+        if fork == True:
             selected_chain = (self.chain[0:index+1].copy())
         else:
             selected_chain = self.chain
@@ -96,7 +100,7 @@ class Blockchain:
         if previous_hash != block.header["previous_hash"]:
             return False
 
-        if not Blockchain.validate(block, proof):
+        if not self.validate(block, proof):
             return False
 
         block.hash = proof
@@ -109,7 +113,7 @@ class Blockchain:
         Check if block_hash is valid hash of block and satisfies
         the difficulty criteria.
         """
-        return (block_hash.startswith('0' * Blockchain.difficulty) and
+        return (block_hash.startswith('0' * Blockchain.TARGET) and
                 block_hash == Block.compute_hash(block.header))
 
     def resolve(self):
@@ -120,9 +124,39 @@ class Blockchain:
         self.chain = longest_chain
         return longest_chain.last_block
 
+class Miner:
+
+    def __init__(self):
+        """
+        Constructor for the `Miner` class.
+        """
+        self.coins = 0
+
+    def mine(self, blockchain, fork, index):
+        """
+        This function serves as an interface to add the pending
+        transactions to the blockchain by adding them to the block
+        and figuring out proof of work.
+        """
+        if not blockchain.unconfirmed_transactions:
+            return False
+
+        selected_transaction = blockchain.unconfirmed_transactions[0]
+        last_block = blockchain.last_block
+
+        new_block = Block(index=last_block.index + 1,
+                          transactions=selected_transaction,
+                          previous_hash=last_block.hash)
+
+        proof = blockchain.proof_of_work(new_block)
+        blockchain.add_block(new_block, proof, fork, index)
+        blockchain.unconfirmed_transactions.pop(0)
+        return new_block.index
+
 data_chunks = ["test", "testing", "testing1", "testing2"]
 mk = MerkleTree(data_chunks)
 blockchain = Blockchain()
-new_block = Block(1, mk, "0")
-proof = Block.compute_hash(new_block.header)
-print(blockchain.add_block(new_block, proof, fork, false, None))
+blockchain.add_new_transaction(mk)
+miner = Miner()
+miner.mine(blockchain, False, None)
+print(blockchain.chain)
