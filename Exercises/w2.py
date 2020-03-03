@@ -37,6 +37,9 @@ class Blockchain:
     # difficulty of PoW algorithm
     TARGET = 2
 
+    #reward for mining blocks
+    REWARD = 100
+
     def __init__(self):
         """
         Constructor for the `Blockchain` class.
@@ -156,7 +159,12 @@ class Miner:
         proof = blockchain.proof_of_work(new_block)
         blockchain.add_block(new_block, proof, forkname, index)
         blockchain.unconfirmed_transactions.pop(0)
+
+        self.add_coins(blockchain.REWARD)
         return new_block.index
+
+    def add_coins(self, amount):
+        self.coins += amount
 
 data_chunks = ["test", "testing", "testing1", "testing2"]
 mk = MerkleTree(data_chunks)
@@ -166,3 +174,4 @@ miner = Miner()
 miner.mine(blockchain, None , None)
 print(blockchain.forked_chains)
 print(blockchain.chain)
+print(miner.coins)
