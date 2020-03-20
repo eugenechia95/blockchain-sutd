@@ -1,5 +1,6 @@
 from ecdsa import SigningKey, VerifyingKey, NIST384p
 from json import JSONEncoder
+import copy
 import json
 import base64
 
@@ -42,18 +43,21 @@ class Transaction:
     # Validate transaction correctness.
     # Can be called within from_json()
     tmp = self.signature
-    self.signature = ""
-    s = self.serialize()
-    decoded_public_key = base64.decodestring(self.sender)
-    print(self.sender)
+    duplicated_object = copy.deepcopy(self)
+    duplicated_object.signature = ""
+    s = duplicated_object.serialize()
+    decoded_public_key = base64.decodestring(duplicated_object.sender)
     public_key = VerifyingKey.from_string(decoded_public_key, curve=NIST384p)
-    print(public_key)
     assert public_key.verify(tmp, s)
 
   @classmethod
   def __eq__(cls, transaction_1, transaction_2):
     # Check whether transactions are the same
-    if transaction_1.serialize() == transaction_2.serialize():
+    copy_1 = copy.deepcopy(transaction_1)
+    copy_2 = copy.deepcopy(transaction_2)
+    copy_1.signature = ""
+    copy_2.signature = ""
+    if copy_1.serialize() == copy_2.serialize():
       return True
     else:
       return False
@@ -63,9 +67,8 @@ vk = sk.verifying_key
 
 tx = Transaction(vk, vk, "5", "5")
 y = tx.serialize()
-print(y)
 tx.sign(sk)
 tx.validate(vk)
-tx2 = Transaction.deserialize(y)
+tx2 = copy.deepcopy(tx)
 outcome = Transaction.__eq__(tx, tx2)
 print(outcome)
