@@ -2,6 +2,7 @@ from hashlib import sha256
 import json
 import time
 from q5 import *
+from q4 import *
 
 
 class Block:

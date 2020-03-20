@@ -1,4 +1,6 @@
 from hashlib import sha256
+from ecdsa import SigningKey, VerifyingKey, NIST384p
+from q4 import *
 
 class MerkleNode:
     """
@@ -59,7 +61,6 @@ class MerkleTree:
 
     def get_proof(self, index):
         # Get membership proof for entry; minimum number of nodes needed to find root
-        # TODO: WHICH NODES ARE NEEDED TO PROVE
         leaf_node = self.leaves[index]
         proof = []
         current_node = leaf_node
@@ -98,7 +99,7 @@ class MerkleTree:
     
     @staticmethod
     def compute_hash(data):
-        data = data.encode('utf-8')
+        data = bytes(data)
         return sha256(data).hexdigest()
 
     @staticmethod
@@ -110,12 +111,16 @@ class MerkleTree:
         return current_computed == root.hash
 
 
-data_chunks = ["test", "testing", "testing1", "testing2"]
+sk = SigningKey.generate(curve=NIST384p)
+vk = sk.verifying_key
+tx = Transaction(vk, vk, "5", "5")
+data_chunks = [tx,tx,tx,tx]
 mk = MerkleTree(data_chunks)
 print(mk.leaves)
 print(mk.parents)
+print(mk.root)
 proof = mk.get_proof(0)
 print(proof)
-entry = MerkleTree.compute_hash("test")
+entry = MerkleTree.compute_hash(tx)
 verification_status = MerkleTree.verify_proof(entry, proof, mk.root)
 print(verification_status)
