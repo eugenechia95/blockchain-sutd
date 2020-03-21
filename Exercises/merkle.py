@@ -6,11 +6,12 @@ class MerkleNode:
     """
     Stores the hash and the parent.
     """
-    def __init__(self, hash):
+    def __init__(self, hash, data = None):
         self.hash = hash
         self.parent = None
         self.left_child = None
         self.right_child = None
+        self.data = data
 
 class MerkleTree:
     
@@ -22,7 +23,7 @@ class MerkleTree:
         self.parents = []
 
         for chunk in data_chunks:
-            node = MerkleNode(self.compute_hash(chunk))
+            node = MerkleNode(self.compute_hash(chunk), chunk)
             self.leaves.append(node)
 
         self.root = self.build(self.leaves)
