@@ -62,13 +62,13 @@ class Transaction:
     else:
       return False
 
-sk = SigningKey.generate(curve=NIST384p)
-vk = sk.verifying_key
+# sk = SigningKey.generate(curve=NIST384p)
+# vk = sk.verifying_key
 
-tx = Transaction(vk, vk, "5", "5")
-y = tx.serialize()
-tx.sign(sk)
-tx.validate(vk)
-tx2 = copy.deepcopy(tx)
-outcome = Transaction.__eq__(tx, tx2)
-print(outcome)
+# tx = Transaction(vk, vk, "5", "5")
+# y = tx.serialize()
+# tx.sign(sk)
+# tx.validate(vk)
+# tx2 = copy.deepcopy(tx)
+# outcome = Transaction.__eq__(tx, tx2)
+# print(outcome)

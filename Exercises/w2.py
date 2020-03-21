@@ -1,6 +1,8 @@
 from hashlib import sha256
+from ecdsa import SigningKey, VerifyingKey, NIST384p
 import json
 import time
+import copy
 from q5 import *
 from q4 import *
 
@@ -22,6 +24,7 @@ class Block:
             "timestamp": int(time.time()), 
             "nonce": 0
         }
+        self.block = ""
 
     @staticmethod
     def compute_hash(data):
@@ -85,21 +88,28 @@ class Blockchain:
 
         return computed_hash
 
-    def add_block(self, block, proof, forkname=None, index=None):
+    def add_block(self, block, proof, target_fork="main", new_fork=None, index=None):
         """
         A function that adds the block to the chain after verification.
         Verification includes:
         * Checking if the proof is valid.
         * The previous_hash referred in the block and the hash of a latest block
           in the chain match.
-        Miners can choose which fork to add to. If no fork selected, block adds to the main chain
+        Miners can choose which fork to add to. 
+        If new_fork name is specified, create new fork based on existing targeted fork chain and index and add to new fork chain
+        If no new fork_name is specified,
+            block adds to the targeted chain. Default chain is the main chain.
+        Index only matters for new fork creation
+        If last 3 arguments not supplied, add block to main chain
         """
-        if forkname != None:
-            index = len(self.chain) if index == None else index
-            selected_chain = self.chain[0:index+1]
-        else:
-            selected_chain = self.chain
 
+        selected_fork = self.chain if target_fork == "main" else self.forked_chains[target_fork]
+        if new_fork == None:
+            selected_chain = selected_fork
+        else:
+            index = len(selected_fork) if index == None else index
+            self.forked_chains[new_fork] = copy.copy(selected_fork[0:index+1])
+            selected_chain = self.forked_chains[new_fork]
 
         previous_hash = self.last_block.hash
 
@@ -112,9 +122,6 @@ class Blockchain:
         block.hash = proof
         selected_chain.append(block)
         
-        if forkname == True:
-            self.forked_chains[forkname] = selected_chain
-
         return True
 
     def validate(self, block, block_hash):
@@ -141,7 +148,7 @@ class Miner:
         """
         self.coins = 0
 
-    def mine(self, blockchain, forkname, index):
+    def mine(self, blockchain, target_fork="main", new_fork=None, index=None):
         """
         This function serves as an interface to add the pending
         transactions to the blockchain by adding them to the block
@@ -158,7 +165,7 @@ class Miner:
                           previous_hash=last_block.hash)
 
         proof = blockchain.proof_of_work(new_block)
-        blockchain.add_block(new_block, proof, forkname, index)
+        blockchain.add_block(new_block, proof, target_fork, new_fork, index)
         blockchain.unconfirmed_transactions.pop(0)
 
         self.add_coins(blockchain.REWARD)
@@ -167,12 +174,23 @@ class Miner:
     def add_coins(self, amount):
         self.coins += amount
 
-data_chunks = ["test", "testing", "testing1", "testing2"]
+# data_chunks = ["test", "testing", "testing1", "testing2"]
+sk = SigningKey.generate(curve=NIST384p)
+vk = sk.verifying_key
+tx = Transaction(vk, vk, "5", "5")
+data_chunks = [tx, tx, tx, tx]
 mk = MerkleTree(data_chunks)
 blockchain = Blockchain()
+print(blockchain.chain)
+blockchain.add_new_transaction(mk)
+blockchain.add_new_transaction(mk)
+blockchain.add_new_transaction(mk)
 blockchain.add_new_transaction(mk)
 miner = Miner()
-miner.mine(blockchain, None , None)
+miner.mine(blockchain)
+miner.mine(blockchain)
+miner.mine(blockchain, "main", "newchain")
+miner.mine(blockchain, "newchain", "newerchain", 2)
 print(blockchain.forked_chains)
 print(blockchain.chain)
 print(miner.coins)

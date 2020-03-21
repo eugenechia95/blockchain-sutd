@@ -111,16 +111,16 @@ class MerkleTree:
         return current_computed == root.hash
 
 
-sk = SigningKey.generate(curve=NIST384p)
-vk = sk.verifying_key
-tx = Transaction(vk, vk, "5", "5")
-data_chunks = [tx,tx,tx,tx]
-mk = MerkleTree(data_chunks)
-print(mk.leaves)
-print(mk.parents)
-print(mk.root)
-proof = mk.get_proof(0)
-print(proof)
-entry = MerkleTree.compute_hash(tx)
-verification_status = MerkleTree.verify_proof(entry, proof, mk.root)
-print(verification_status)
+# sk = SigningKey.generate(curve=NIST384p)
+# vk = sk.verifying_key
+# tx = Transaction(vk, vk, "5", "5")
+# data_chunks = [tx,tx,tx,tx]
+# mk = MerkleTree(data_chunks)
+# print(mk.leaves)
+# print(mk.parents)
+# print(mk.root)
+# proof = mk.get_proof(0)
+# print(proof)
+# entry = MerkleTree.compute_hash(tx)
+# verification_status = MerkleTree.verify_proof(entry, proof, mk.root)
+# print(verification_status)
