@@ -134,11 +134,13 @@ class Blockchain:
 
     def resolve(self):
         longest_chain = self.chain
-        for k, v in self.forked_chains:
-            if len(v) > len(longest_chain):
-                longest_chain = v
+        for i in self.forked_chains.values():
+            if len(i) == len(longest_chain):
+                raise Exception("Two chains with similar length!")
+            if len(i) > len(longest_chain):
+                longest_chain = i
         self.chain = longest_chain
-        return self.chain.last_block
+        return self.last_block
 
 class Miner:
 
@@ -190,7 +192,9 @@ miner = Miner()
 miner.mine(blockchain)
 miner.mine(blockchain)
 miner.mine(blockchain, "main", "newchain")
-miner.mine(blockchain, "newchain", "newerchain", 2)
+miner.mine(blockchain, "newchain", "newerchain", 1)
 print(blockchain.forked_chains)
 print(blockchain.chain)
 print(miner.coins)
+blockchain.resolve()
+print(blockchain.chain)
