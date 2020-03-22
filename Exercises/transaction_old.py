@@ -15,8 +15,14 @@ class Transaction:
     :param amount: amount of money to transfer
     :param comment: additional comments                                     
     """
-    self.sender = sender
-    self.receiver = receiver
+    if isinstance(sender, VerifyingKey):
+      self.sender = base64.encodestring(sender.to_string())
+    else:
+      self.sender = sender
+    if isinstance(receiver, VerifyingKey):
+      self.receiver = base64.encodestring(receiver.to_string())
+    else:
+      self.receiver = receiver
     self.amount = amount
     self.comment = comment
     self.signature = ""
@@ -44,7 +50,6 @@ class Transaction:
     # Validate transaction correctness.
     # Can be called within from_json()
     tmp = self.signature
-
     duplicated_object = copy.deepcopy(self)
     duplicated_object.signature = ""
     s = duplicated_object.serialize()

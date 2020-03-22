@@ -2,22 +2,15 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% autoescape false %}
 	<br>
 
 	<center>
-	<form action="/submit" id="textform" method="post">
-			<label for="sender">Select a sender</label>
-			<select id="sender">
-				{% for public_key in public_keys %}	
-					<option value={{public_key}}>{{public_key}}</option>
-				{% endfor %}
-			</select>
-			<br>
-			<br>
+	<form action="./new_transaction" id="textform" method="post">
 			<label for="receiver">Select a receiver</label>
-			<select id="receiver">
+			<select name="receiver" id="receiver">
 				{% for public_key in public_keys %}
-					<option value={{public_key}}>{{public_key}}</option>
+					<option value="{{public_key}}">{{public_key}}</option>
 				{% endfor %}
 			</select>
 			<br>
@@ -34,6 +27,7 @@
 
 	<br>
 
+	<a href="./get_public_keys"><button>Get public keys</button></a>
 	<a href="{{node_address}}/mine" target="_blank"><button>Request to mine</button></a>
 	<a href="/"><button>Resync</button></a>
 
@@ -117,5 +111,7 @@
 		    height: 42px;
 		}
 	</style>
-    </div>
+		</div>
+		{% endautoescape %}
 {% endblock %}
+

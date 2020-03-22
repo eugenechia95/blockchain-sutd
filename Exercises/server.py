@@ -1,6 +1,7 @@
-from flask import Flask, request, render_template, redirect, request
+from flask import Flask, request, render_template, redirect, request, url_for
 from blockchain import *
 import requests
+import base64
 
 
 # Initialize flask application
@@ -17,9 +18,8 @@ blockchain = Blockchain()
 miner = Miner(public_key)
 
 # public keys of other participating members of the network
-public_keys = set()
-public_keys.add(123321)
-public_keys.add(71123233)
+all_public_keys = set()
+all_public_keys.add(base64.encodestring(public_key.to_string()))
 
 # the address to other participating members of the network
 peers = set()
@@ -37,7 +37,7 @@ def index():
                            title='SUTD COIN '
                                  'Decentralised Transaction Ledger',
                            peers = peers,
-                           public_keys = public_keys,
+                           public_keys = all_public_keys,
                            posts=posts,
                            node_address=CONNECTED_NODE_ADDRESS,
                            readable_time=timestamp_to_string)
@@ -46,20 +46,41 @@ def timestamp_to_string(epoch_time):
     return datetime.datetime.fromtimestamp(epoch_time).strftime('%H:%M')
 
 
+@app.route('/get_public_keys')
+def get_public_keys():
+    response = requests.get(CONNECTED_NODE_ADDRESS + "/return_public_keys")
+    retrieved_public_keys = response.json()["public_keys"]
+    all_public_keys.update(retrieved_public_keys)
+    return redirect(url_for('index'))
+
+# endpoint to return public_keys from main node
+@app.route('/return_public_keys')
+def return_public_keys():
+    return json.dumps({"public_keys": list(all_public_keys)})
+
 # endpoint to submit a new transaction. This will be used by
 # our application to add new data (transactions) to the blockchain
 @app.route('/new_transaction', methods=['POST'])
 def new_transaction():
-    tx_data = request.get_json()
-    required_fields = ["sender", "receiver", "amount", "comment"]
+    try:
+        tx_data = request.form
+        required_fields = ["receiver", "amount", "comment"]
 
-    for field in required_fields:
-        if not tx_data.get(field):
-            return "Invalid transaction data", 404
+        for field in required_fields:
+            if not tx_data.get(field):
+                return "Invalid transaction data", 404
+        
+        encoded_sender_key = base64.encodestring(public_key.to_string())
+        tx = Transaction(encoded_sender_key, tx_data["receiver"], int(tx_data["amount"]), tx_data["comment"])
+        tx.sign(private_key)
+        mk = MerkleTree([tx])
 
-    blockchain.add_new_transaction(tx_data)
+        blockchain.add_new_transaction(mk)
 
-    return "Success", 201
+        return "Success", 201
+
+    except Exception as e:
+        return(str(e), 400)
 
 
 # endpoint to return the node's copy of the chain.
@@ -104,11 +125,14 @@ def mine_unconfirmed_transactions():
 @app.route('/register_node', methods=['POST'])
 def register_new_peers():
     node_address = request.get_json()["node_address"]
+    new_public_key = request.get_json()["public_key"]
     if not node_address:
         return "Invalid data", 400
 
     # Add the node to the peer list
     peers.add(node_address)
+    # Add public key to all public keys list
+    all_public_keys.add(new_public_key)
 
     # Return the consensus blockchain to the newly registered node
     # so that he can sync
@@ -126,7 +150,7 @@ def register_with_existing_node():
     if not node_address:
         return "Invalid data", 400
 
-    data = {"node_address": request.host_url}
+    data = {"node_address": request.host_url, "public_key": base64.encodestring(public_key.to_string())}
     headers = {'Content-Type': "application/json"}
 
     # Make a request to register with remote node and obtain information

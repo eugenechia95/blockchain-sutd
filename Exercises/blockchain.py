@@ -185,7 +185,7 @@ class Blockchain:
         block_locked_coins = {}
 
         # Add miner's reward to block's locked_coins
-        encoded_miner_coins_key = base64.encodestring(miner.public_key.to_string())
+        encoded_miner_coins_key = miner.public_key
         decoded_miner_coins_key = base64.decodestring(encoded_miner_coins_key)
         miner_coins_key = str(VerifyingKey.from_string(decoded_miner_coins_key, curve=NIST384p))
         if (block_locked_coins.get(miner_coins_key) == None):
@@ -237,7 +237,7 @@ class Miner:
         """
         Constructor for the `Miner` class.
         """
-        self.public_key = public_key
+        self.public_key = base64.encodestring(public_key.to_string())
 
     def mine(self, blockchain, target_fork="main", new_fork=None, index=None):
         """
@@ -276,8 +276,11 @@ class Miner:
 # miner_a_public_key = miner_a_private_key.verifying_key
 # miner_b_private_key = SigningKey.generate(curve=NIST384p)
 # miner_b_public_key = miner_b_private_key.verifying_key
-# valueless_tx = Transaction(miner_a_public_key, miner_b_public_key, 0, "")
-# normal_tx = Transaction(miner_a_public_key, miner_b_public_key, 5, "")
+# miner_a_encoded_public_key = base64.encodestring(miner_a_public_key.to_string())
+# miner_b_encoded_public_key = base64.encodestring(miner_b_public_key.to_string())
+
+# valueless_tx = Transaction(miner_a_encoded_public_key, miner_b_encoded_public_key, 0, "")
+# normal_tx = Transaction(miner_a_encoded_public_key, miner_b_encoded_public_key, 5, "")
 # valueless_tx.sign(miner_a_private_key)
 # normal_tx.sign(miner_a_private_key)
 # valueless_mk = MerkleTree([valueless_tx])
@@ -290,6 +293,8 @@ class Miner:
 # miner_b = Miner(miner_b_public_key)
 # miner_a.mine(blockchain)
 # miner_a.mine(blockchain)
+# print(blockchain.coins)
+# print(blockchain.locked_coins)
 
 # i=0
 # j=0
