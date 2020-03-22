@@ -9,7 +9,7 @@ from transaction import *
 
 
 class Block:
-    def __init__(self, index, transactions, previous_hash):
+    def __init__(self, index, transactions, previous_hash=None, hash_merkle_root=None, timestamp=None, nonce=None):
         """
         Constructor for the `Block` class.
         :param index:         Unique ID of the block.
@@ -19,11 +19,12 @@ class Block:
         """
         self.index = index
         self.transactions = transactions
+
         self.header = {
             "previous_hash": previous_hash, # Adding the previous hash field
-            "hash_merkle_root": self.compute_hash(transactions.root) if transactions != [] else None, 
-            "timestamp": int(time.time()), 
-            "nonce": 0
+            "hash_merkle_root": hash_merkle_root or (self.compute_hash(transactions.root) if transactions != [] else None), 
+            "timestamp": timestamp or int(time.time()), 
+            "nonce": nonce or 0
         }
 
     @staticmethod
@@ -39,13 +40,13 @@ class Block:
 class Blockchain:
 
     # difficulty of PoW algorithm
-    TARGET = 5
+    TARGET = 1
 
     # reward for mining blocks
     REWARD = 100
 
     # number of blocks to be mined before reward is released
-    LOCKTIME = 6
+    LOCKTIME = 0
 
     def __init__(self):
         """
@@ -121,14 +122,12 @@ class Blockchain:
 
         previous_hash = self.last_block.hash
 
-        if previous_hash != block.header["previous_hash"]:
-            return False
 
-        if not self.validate(block, proof):
+        if len(self.chain) != 1 and previous_hash != block.header["previous_hash"]:
             return False
 
         block.hash = proof
-        selected_chain.append(block)
+        selected_fork.append(block)
         
         return True
 

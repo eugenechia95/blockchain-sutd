@@ -4,6 +4,8 @@
   </head>
   <body>
     <center><h1>{{ title }}</h1></center>
+    <p>Amount of SUTD coins: {{coins}}</p>
+    <p>Your Encoded public key: {{encoded_public_key}}</p>
     <hr>
     {% with messages = get_flashed_messages() %}
     {% if messages %}

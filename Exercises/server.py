@@ -24,6 +24,8 @@ all_public_keys.add(base64encoded_public_key)
 
 # the address to other participating members of the network
 peers = set()
+peers.add(u"http://127.0.0.1:8000/")
+
 
 # The node with which our application interacts, there can be multiple
 # such nodes as well.
@@ -38,6 +40,7 @@ def index():
                            title='SUTD COIN '
                                  'Decentralised Transaction Ledger',
                            peers = peers,
+                           encoded_public_key = base64encoded_public_key,
                            public_keys = all_public_keys,
                            posts=posts,
                            coins=blockchain.coins.get(str(public_key)),
@@ -90,7 +93,7 @@ def new_transaction():
 # all the posts to display.
 @app.route('/chain', methods=['GET'])
 def get_chain():
-    chain_data = []
+    chain_data = []   
     for block in blockchain.chain:
         chain_data.append(block.__dict__)
     return json.dumps({"length": len(chain_data),
@@ -111,7 +114,6 @@ def mine_unconfirmed_transactions():
     index = mining_params["index"]
     
     if str(target_fork) == "":
-        print("here")
         result = miner.mine(blockchain)
     else:
         result = miner.mine(blockchain, target_fork, new_fork, index)
@@ -182,7 +184,6 @@ def register_with_existing_node():
 
 def create_chain_from_dump(chain_dump):
     generated_blockchain = Blockchain()
-    generated_blockchain.create_genesis_block()
     for idx, block_data in enumerate(chain_dump):
         if idx == 0:
             continue  # skip genesis block
@@ -201,14 +202,18 @@ def create_chain_from_dump(chain_dump):
 # and then added to the chain.
 @app.route('/add_block', methods=['POST'])
 def verify_and_add_block():
-    block_data = request.get_json()["block"]
-    coins = request.get_json()["coins"]
-    locked_coins = request.get_json()["locked_coins"]
-    block = Block(block_data["index"],
-                  block_data["transactions"],
-                  block_data["previous_hash"])
+    data = request.get_json()
+    coins = data["coins"]
+    locked_coins = data["locked_coins"]
+    block = Block(data["index"],
+                  data["transactions"],
+                  data["header"]["previous_hash"],
+                  data["header"]["hash_merkle_root"],
+                  data["header"]["timestamp"],
+                  data["header"]["nonce"],
+                  )
 
-    proof = block_data['hash']
+    proof = data['hash']
     added = blockchain.quick_add_block(block, proof)
 
     if not added:
@@ -238,6 +243,8 @@ def consensus():
 
     for node in peers:
         response = requests.get('{}chain'.format(node))
+        if response.status_code != 200:
+            continue
         length = response.json()['length']
         chain = response.json()['chain']
         if length > current_len and blockchain.check_chain_validity(chain):
@@ -260,12 +267,14 @@ def announce_new_block(block):
     for peer in peers:
         url = "{}add_block".format(peer)
         headers = {'Content-Type': "application/json"}
+        json_data = json.dumps(block.__dict__, sort_keys=True, default=lambda x: None)
+        decoded_json = json.loads(json_data)
+        decoded_json["coins"] = blockchain.coins
+        decoded_json["locked_coins"] = blockchain.locked_coins
+        encoded_json = json.dumps(decoded_json, sort_keys=True)
+
         requests.post(url,
-                      data={
-                          "block": json.dumps(block.__dict__, sort_keys=True),
-                          "coins": blockchain.coins,
-                          "locked_coins": blockchain.locked_coins
-                      },
+                      data= encoded_json,
                       headers=headers)
 
 # Uncomment this line if you want to specify the port number in the code
