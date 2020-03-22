@@ -190,7 +190,7 @@ class Blockchain:
         miner_coins_key = str(VerifyingKey.from_string(decoded_miner_coins_key, curve=NIST384p))
         if (block_locked_coins.get(miner_coins_key) == None):
                 block_locked_coins[(miner_coins_key)] = 0
-        block_locked_coins[miner_coins_key] += blockchain.REWARD
+        block_locked_coins[miner_coins_key] += self.REWARD
 
         for i in block.transactions.leaves:
             transaction = i.data
@@ -212,7 +212,7 @@ class Blockchain:
 
             
         # Adds block's locked_coins to blockchain's locked_coin_array
-        blockchain.locked_coins.append(block_locked_coins)
+        self.locked_coins.append(block_locked_coins)
 
     # Release locked coins after LOCKTIME into spendable coins
     def release_locked_coins(self):

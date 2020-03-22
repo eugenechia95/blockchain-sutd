@@ -103,12 +103,16 @@ def get_chain():
 # a command to mine from our application itself.
 @app.route('/mine', methods=['POST'])
 def mine_unconfirmed_transactions():
-    mining_params = request.get_json()
+    mining_params = request.form
     target_fork = mining_params["target_fork"]
     new_fork = mining_params["new_fork"]
     index = mining_params["index"]
-
-    result = miner.mine(blockchain, target_fork, new_fork, index)
+    
+    if str(target_fork) == "":
+        print("here")
+        result = miner.mine(blockchain)
+    else:
+        result = miner.mine(blockchain, target_fork, new_fork, index)
     if not result:
         return "No transactions to mine"
     else:

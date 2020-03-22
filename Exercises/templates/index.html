@@ -23,8 +23,23 @@
 			<br>
 	    <input type="submit" value="Post">
 	</form>
-	</center>
+	
 
+	<h3>Choose fork to mine. Leave all blank for default chain mining</h3>
+	<form action="./mine" target="_blank" id="textform" method="post">
+		<input type="text" name="target_fork" placeholder="Target Fork">
+		<br>
+		<br>
+		<input type="text" name="new_fork" placeholder="New Fork Name">
+		<br>
+		<br>
+		<input type="number" name="index" placeholder="Index">
+		<br>
+		<br>
+		<input type="submit" value="Post">
+	</form>
+
+	</center>
 	<br>
 
 	<a href="./get_public_keys"><button>Get public keys</button></a>
