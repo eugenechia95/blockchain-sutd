@@ -62,6 +62,7 @@ class Blockchain:
         self.forked_chains = {}
         self.create_genesis_block()
         self.coins = {}
+        self.forked = False
 
     def reprJSON(self):
         return dict(unconfirmed_transactions=self.unconfirmed_transactions, locked_coins=self.locked_coins, chain=self.chain, coins=self.coins)
@@ -161,7 +162,10 @@ class Blockchain:
             self.forked_chains[new_fork] = copy.copy(selected_fork[0:index+1])
             selected_chain = self.forked_chains[new_fork]
 
-        previous_hash = self.last_block.hash
+        if index == None:
+            previous_hash = self.last_block.hash if target_fork == "main" else selected_fork[-1].hash
+        else:
+            previous_hash = selected_fork[0].hash if index == 0 else selected_fork[index-1].hash
 
         if previous_hash != block.header["previous_hash"]:
             return False
@@ -231,13 +235,15 @@ class Blockchain:
 
     def resolve(self):
         longest_chain = self.chain
+        changed = False
+        if self.forked_chains == {}:
+            return None
         for i in self.forked_chains.values():
-            if len(i) == len(longest_chain):
-                raise Exception("Two chains with similar length!")
             if len(i) > len(longest_chain):
                 longest_chain = i
+                changed = True
         self.chain = longest_chain
-        return self.last_block
+        return changed
 
 class Miner:
 
@@ -257,11 +263,22 @@ class Miner:
             return False
 
         selected_transaction = blockchain.unconfirmed_transactions[0]
-        last_block = blockchain.last_block
+        last_block = blockchain.last_block if target_fork == "main" else blockchain.forked_chains[target_fork][-1]
 
-        new_block = Block(index=last_block.index + 1,
+        if index != None:
+            idx = index + 1
+        else:
+            idx = last_block.index + 1
+
+        if target_fork == "main":
+            new_block = Block(index=idx,
                           transactions=selected_transaction,
-                          previous_hash=last_block.hash)
+                          previous_hash=blockchain.chain[idx-1].hash)
+        else:
+            new_block = Block(index=idx,
+                            transactions=selected_transaction,
+                            previous_hash=last_block.hash)
+
 
         proof = blockchain.proof_of_work(new_block)
         blockchain.add_block(self, new_block, proof, target_fork, new_fork, index)

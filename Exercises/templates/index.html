@@ -6,6 +6,10 @@
 	<br>
 
 	<center>
+	<h4>Current Chain Length: {{current_length}}</h4>
+	{% if forked %}
+	<h4>Main chain replaced with forked!</h4>
+	{% endif  %}
 	<h3>Create Transaction. Choose receiver to send SUTD Coins</h3>
 	<form action="./new_transaction" id="textform" method="post">
 			<label for="receiver">Select a receiver</label>

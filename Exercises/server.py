@@ -32,11 +32,10 @@ CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 
 posts = []
 
-
 @app.route('/')
 def index():
-    print(blockchain.unconfirmed_transactions)
-    print(blockchain.last_block.header)
+    print(blockchain.forked_chains)
+    print(blockchain.chain)
     return render_template('index.html',
                            title='SUTD COIN '
                                  'Decentralised Transaction Ledger',
@@ -44,6 +43,8 @@ def index():
                            encoded_public_key = base64encoded_public_key,
                            public_keys = all_public_keys,
                            posts=posts,
+                           forked = blockchain.forked,
+                           current_length = len(blockchain.chain),
                            coins=blockchain.coins.get(str(public_key)),
                            node_address=CONNECTED_NODE_ADDRESS,
                            readable_time=timestamp_to_string)
@@ -151,7 +152,10 @@ def mine_unconfirmed_transactions():
     mining_params = request.form
     target_fork = mining_params["target_fork"]
     new_fork = mining_params["new_fork"]
-    index = mining_params["index"]
+    if (mining_params["index"] == ""):
+        index = None
+    else:
+        index = int(mining_params["index"])
     
     if str(target_fork) == "":
         result = miner.mine(blockchain)
@@ -161,6 +165,12 @@ def mine_unconfirmed_transactions():
         return "No transactions to mine"
     else:
         # Making sure we have the longest chain before announcing to the network
+        blockchain.forked = False
+        result = blockchain.resolve()
+        if result == True:
+            blockchain.forked = True
+        if result == False:
+            return "Block #{} is mined.".format(blockchain.forked_chains[new_fork][-1].index)
         chain_length = len(blockchain.chain)
         consensus()
         if chain_length == len(blockchain.chain):
