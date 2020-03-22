@@ -201,7 +201,7 @@ class Blockchain:
         for i in block.transactions.leaves:
             transaction = i.data
             # checks if transaction public key can verify transaction
-            result = transaction.validate()
+            # result = transaction.validate()
             # checks if transaction amount is less than sender's coin balance
             decoded_sender_public_key = base64.decodestring(transaction.sender)
             sender_public_key = str(VerifyingKey.from_string(decoded_sender_public_key, curve=NIST384p))
@@ -225,6 +225,8 @@ class Blockchain:
         if len(self.locked_coins) > Blockchain.LOCKTIME:
             locked_coins = self.locked_coins.pop(0)
             for i in locked_coins.keys():
+                if (self.coins.get(i) == None):
+                    self.coins[i] = 0
                 self.coins[i] += locked_coins[i]
 
     def resolve(self):

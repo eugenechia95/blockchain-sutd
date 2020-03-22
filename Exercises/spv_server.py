@@ -33,22 +33,45 @@ CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 @app.route('/')
 def index():
     print(client.blockheaders)
+    get_coins()
     return render_template('spv_index.html',
                            title='SUTD COIN '
                                  'Decentralised Transaction Ledger',
                            peers = peers,
                            encoded_public_key = base64encoded_public_key,
                            public_keys = all_public_keys,
-                           coins=100,
+                           coins=client.coins,
                            node_address=CONNECTED_NODE_ADDRESS,
                            readable_time=timestamp_to_string)
 
 def timestamp_to_string(epoch_time):
     return datetime.datetime.fromtimestamp(epoch_time).strftime('%H:%M')
 
+def get_coins():
+    try:
+        data = {"client": str(public_key)}
+        headers = {'Content-Type': "application/json"}
+        response = requests.post(CONNECTED_NODE_ADDRESS + "/get_coins",
+                             data=json.dumps(data), headers=headers)
+
+        coins = response.json()["coins"]
+        client.coins = int(coins)
+
+        return "Transaction Sent", 200
+
+    except Exception as e:
+        return(str(e), 400)
+
+@app.route('/get_public_keys')
+def get_public_keys():
+    response = requests.get(CONNECTED_NODE_ADDRESS + "/return_public_keys")
+    retrieved_public_keys = response.json()["public_keys"]
+    all_public_keys.update(retrieved_public_keys)
+    return redirect(url_for('index'))
+
+
 @app.route('/get_headers')
 def get_headers():
-
 
     response = requests.get(CONNECTED_NODE_ADDRESS + "/get_headers")
 
@@ -61,6 +84,32 @@ def get_headers():
     else:
         # if something goes wrong, pass it on to the API response
         return response.content, response.status_code
+
+
+@app.route('/send_transaction', methods=['POST'])
+def send_transaction():
+
+    try:
+        tx_data = request.form
+        required_fields = ["receiver", "amount", "comment"]
+
+        for field in required_fields:
+            if not tx_data.get(field):
+                return "Invalid transaction data", 404
+        
+        encoded_sender_key = base64.encodestring(public_key.to_string())
+        tx = Transaction(encoded_sender_key, tx_data["receiver"], int(tx_data["amount"]), tx_data["comment"])
+        tx.sign(private_key)
+        mk = MerkleTree([tx])
+        headers = {'Content-Type': "application/json"}
+        response = requests.post(CONNECTED_NODE_ADDRESS + "/spv_new_transaction",
+                             data=json.dumps(mk.__dict__, cls=ComplexEncoder), headers=headers)
+
+        return "Transaction Sent", 200
+
+    except Exception as e:
+        return(str(e), 400)
+
 
 @app.route('/spv_register_with', methods=['POST'])
 def spv_register_with_existing_node():

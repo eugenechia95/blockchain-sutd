@@ -4,6 +4,7 @@ class SPVClient:
         self.blockheaders = blockheaders #Blockheaders will a list of all of the headers from the blocks in the block chain
         self.public_key = public_key
         self.private_key = private_key
+        self.coins = 0
 
     "Adds new header to the SPV client's list from the mining community"
     def add_new_header(self, header):

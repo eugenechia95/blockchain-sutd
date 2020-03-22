@@ -8,7 +8,7 @@
 	<center>
 	<h2>SPV CLIENT</h2>
 	<h3>Create Transaction. Choose receiver to send SUTD Coins</h3>
-	<form action="./new_transaction" id="textform" method="post">
+	<form action="./send_transaction" id="textform" method="post">
 			<label for="receiver">Select a receiver</label>
 			<select name="receiver" id="receiver">
 				{% for public_key in public_keys %}

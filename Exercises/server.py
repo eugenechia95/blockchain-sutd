@@ -26,7 +26,6 @@ all_public_keys.add(base64encoded_public_key)
 peers = set()
 peers.add(u"http://127.0.0.1:8000/")
 
-
 # The node with which our application interacts, there can be multiple
 # such nodes as well.
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
@@ -36,6 +35,7 @@ posts = []
 
 @app.route('/')
 def index():
+    print(blockchain.unconfirmed_transactions)
     print(blockchain.last_block.header)
     return render_template('index.html',
                            title='SUTD COIN '
@@ -58,6 +58,16 @@ def get_headers():
         headers[block.index] = block.header
     print(json.dumps(headers))
     return json.dumps(headers)
+
+@app.route('/get_coins', methods=['POST'])
+def get_coins():
+    client = request.get_json()["client"]
+    print(client)
+    print(blockchain.coins)
+    if (blockchain.coins.get(client) == None):
+        blockchain.coins[client] = 0
+    result = {"coins": blockchain.coins[client]}
+    return json.dumps(result)
     
 
 @app.route('/get_public_keys')
@@ -94,7 +104,22 @@ def new_transaction():
         return "Success", 201
 
     except Exception as e:
-        return(str(e), 400)
+            return(str(e), 400)
+
+@app.route('/spv_new_transaction', methods=['POST'])
+def spv_new_transaction():
+    data = request.get_json()["root"]["data"]
+
+    sender = data["sender"]
+    receiver = data["receiver"]
+    amount = data["amount"]
+    comment = data["comment"]
+    tx = Transaction(sender, receiver, amount, comment)
+
+    mk = MerkleTree([tx])
+    blockchain.unconfirmed_transactions.append(mk)
+
+    return "Success", 201
 
 
 # endpoint to return the node's copy of the chain.
