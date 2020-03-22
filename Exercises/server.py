@@ -10,6 +10,7 @@ app =  Flask(__name__)
 # Initialize public and private key
 private_key = SigningKey.generate(curve=NIST384p)
 public_key = private_key.verifying_key
+base64encoded_public_key = base64.encodestring(public_key.to_string())
 
 # Initialize a blockchain object.
 blockchain = Blockchain()
@@ -19,7 +20,7 @@ miner = Miner(public_key)
 
 # public keys of other participating members of the network
 all_public_keys = set()
-all_public_keys.add(base64.encodestring(public_key.to_string()))
+all_public_keys.add(base64encoded_public_key)
 
 # the address to other participating members of the network
 peers = set()
@@ -39,6 +40,7 @@ def index():
                            peers = peers,
                            public_keys = all_public_keys,
                            posts=posts,
+                           coins=blockchain.coins.get(str(public_key)),
                            node_address=CONNECTED_NODE_ADDRESS,
                            readable_time=timestamp_to_string)
 
