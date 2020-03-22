@@ -213,8 +213,8 @@ def verify_and_add_block():
     locked_coins = data["locked_coins"]
     block = Block(data["index"],
                   data["transactions"],
-                  data["header"]["previous_hash"],
-                  data["header"]["hash_merkle_root"],
+                  str(data["header"]["previous_hash"]),
+                  str(data["header"]["hash_merkle_root"]),
                   data["header"]["timestamp"],
                   data["header"]["nonce"],
                   )
