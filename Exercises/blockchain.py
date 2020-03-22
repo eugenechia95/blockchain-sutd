@@ -25,7 +25,6 @@ class Block:
             "timestamp": int(time.time()), 
             "nonce": 0
         }
-        self.block = ""
 
     @staticmethod
     def compute_hash(data):
@@ -115,9 +114,27 @@ class Blockchain:
 
         return computed_hash
 
+    # Method used by miner nodes to sync blockchains from other notes
+    def quick_add_block(self, block, proof, target_fork="main"):
+        
+        selected_fork = self.chain if target_fork == "main" else self.forked_chains[target_fork]
+
+        previous_hash = self.last_block.hash
+
+        if previous_hash != block.header["previous_hash"]:
+            return False
+
+        if not self.validate(block, proof):
+            return False
+
+        block.hash = proof
+        selected_chain.append(block)
+        
+        return True
+
     def add_block(self, miner, block, proof, target_fork="main", new_fork=None, index=None):
         """
-        A function that adds the block to the chain after verification.
+        A function called by miner that adds the block to the chain after verification.
         Verification includes:
         * Checking if the proof is valid.print(blockchain.coins)
         * The previous_hash referred in the block and the hash of a latest block
@@ -252,27 +269,27 @@ class Miner:
             raise Exception("Miner has no coins")
         return blockchain.coins[miner_coins_key]
 
-sk = SigningKey.generate(curve=NIST384p)
-vk = sk.verifying_key
+# sk = SigningKey.generate(curve=NIST384p)
+# vk = sk.verifying_key
 
-miner_a_private_key = SigningKey.generate(curve=NIST384p)
-miner_a_public_key = miner_a_private_key.verifying_key
-miner_b_private_key = SigningKey.generate(curve=NIST384p)
-miner_b_public_key = miner_b_private_key.verifying_key
-valueless_tx = Transaction(miner_a_public_key, miner_b_public_key, 0, "")
-normal_tx = Transaction(miner_a_public_key, miner_b_public_key, 5, "")
-valueless_tx.sign(miner_a_private_key)
-normal_tx.sign(miner_a_private_key)
-valueless_mk = MerkleTree([valueless_tx])
-normal_mk = MerkleTree([normal_tx, normal_tx, normal_tx])
-blockchain = Blockchain()
-print(blockchain.chain)
-blockchain.add_new_transaction(valueless_mk)
-blockchain.add_new_transaction(valueless_mk)
-miner_a = Miner(miner_a_public_key)
-miner_b = Miner(miner_b_public_key)
-miner_a.mine(blockchain)
-miner_a.mine(blockchain)
+# miner_a_private_key = SigningKey.generate(curve=NIST384p)
+# miner_a_public_key = miner_a_private_key.verifying_key
+# miner_b_private_key = SigningKey.generate(curve=NIST384p)
+# miner_b_public_key = miner_b_private_key.verifying_key
+# valueless_tx = Transaction(miner_a_public_key, miner_b_public_key, 0, "")
+# normal_tx = Transaction(miner_a_public_key, miner_b_public_key, 5, "")
+# valueless_tx.sign(miner_a_private_key)
+# normal_tx.sign(miner_a_private_key)
+# valueless_mk = MerkleTree([valueless_tx])
+# normal_mk = MerkleTree([normal_tx, normal_tx, normal_tx])
+# blockchain = Blockchain()
+# print(blockchain.chain)
+# blockchain.add_new_transaction(valueless_mk)
+# blockchain.add_new_transaction(valueless_mk)
+# miner_a = Miner(miner_a_public_key)
+# miner_b = Miner(miner_b_public_key)
+# miner_a.mine(blockchain)
+# miner_a.mine(blockchain)
 
 # i=0
 # j=0
