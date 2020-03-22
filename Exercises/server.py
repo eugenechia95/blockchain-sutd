@@ -36,6 +36,7 @@ posts = []
 
 @app.route('/')
 def index():
+    print(blockchain.last_block.header)
     return render_template('index.html',
                            title='SUTD COIN '
                                  'Decentralised Transaction Ledger',
@@ -50,6 +51,14 @@ def index():
 def timestamp_to_string(epoch_time):
     return datetime.datetime.fromtimestamp(epoch_time).strftime('%H:%M')
 
+@app.route('/get_headers')
+def get_headers():
+    headers = {}
+    for block in blockchain.chain:
+        headers[block.index] = block.header
+    print(json.dumps(headers))
+    return json.dumps(headers)
+    
 
 @app.route('/get_public_keys')
 def get_public_keys():
@@ -186,6 +195,23 @@ def register_with_existing_node():
     else:
         # if something goes wrong, pass it on to the API response
         return response.content, response.status_code
+
+# endpoint to add new spv_clients to the network.
+@app.route('/register_spv', methods=['POST'])
+def register_spv():
+    node_address = request.get_json()["node_address"]
+    new_public_key = request.get_json()["public_key"]
+    if not node_address:
+        return "Invalid data", 400
+
+    # Add the node to the peer list
+    peers.add(node_address)
+    # Add public key to all public keys list
+    all_public_keys.add(new_public_key)
+
+    # Return all headers to the newly registered spv client
+    # so that he can sync
+    return get_headers()
 
 
 def create_chain_from_dump(chain_dump):
