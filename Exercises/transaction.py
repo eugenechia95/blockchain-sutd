@@ -21,10 +21,12 @@ class Transaction:
     self.comment = comment
     self.signature = ""
 
+  def reprJSON(self):
+    return dict(sender = self.sender, receiver=self.receiver, amount=self.amount, comment=self.comment)
+
   def serialize(self):
     # Serializes object to CBOR or JSON string
     return json.dumps(self, default=lambda obj: obj.__dict__)
-
 
   @classmethod
   def deserialize(cls, json_data):

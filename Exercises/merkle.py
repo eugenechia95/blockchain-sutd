@@ -1,6 +1,14 @@
 from hashlib import sha256
 from ecdsa import SigningKey, VerifyingKey, NIST384p
-from q4 import *
+from transaction import *
+import json
+
+class ComplexEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if hasattr(obj,'reprJSON'):
+            return obj.reprJSON()
+        else:
+            return json.JSONEncoder.default(self, obj)
 
 class MerkleNode:
     """
@@ -12,6 +20,9 @@ class MerkleNode:
         self.left_child = None
         self.right_child = None
         self.data = data
+    
+    def reprJSON(self):
+        return dict(hash=self.hash, parent=self.parent, left_child=self.left_child, right_child=self.right_child, data=self.data)
 
 class MerkleTree:
     
@@ -27,6 +38,9 @@ class MerkleTree:
             self.leaves.append(node)
 
         self.root = self.build(self.leaves)
+
+    def reprJSON(self):
+        return dict(leaves=self.leaves, parents=self.parents, root=self.root)
 
     def add(data_chunks):
         # Add entries to tree

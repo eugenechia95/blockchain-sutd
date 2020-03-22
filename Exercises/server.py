@@ -93,14 +93,20 @@ def new_transaction():
 # all the posts to display.
 @app.route('/chain', methods=['GET'])
 def get_chain():
-    chain_data = []   
-    for block in blockchain.chain:
-        chain_data.append(block.__dict__)
-    return json.dumps({"length": len(chain_data),
-                       "chain": chain_data,
-                       "coins": blockchain.coins,
-                       "locked_coins": blockchain.locked_coins,
-                       "peers": list(peers)})
+    json_chain = json.dumps(blockchain.__dict__, cls=ComplexEncoder)
+    decoded_json = json.loads(json_chain)
+    decoded_json["peers"] = list(peers)
+    decoded_json["length"] = len(blockchain.chain)
+    final_json = json.dumps(decoded_json, sort_keys=True)
+    print(final_json)
+    return final_json
+    # for block in blockchain.chain:
+    #     chain_data.append(block.__dict__)
+    # return json.dumps({"length": len(chain_data),
+    #                    "chain": chain_data,
+    #                    "coins": blockchain.coins,
+    #                    "locked_coins": blockchain.locked_coins,
+    #                    "peers": list(peers)})
 
 
 # endpoint to request the node to mine the unconfirmed
@@ -267,7 +273,7 @@ def announce_new_block(block):
     for peer in peers:
         url = "{}add_block".format(peer)
         headers = {'Content-Type': "application/json"}
-        json_data = json.dumps(block.__dict__, sort_keys=True, default=lambda x: None)
+        json_data = json.dumps(block.reprJSON(), cls=ComplexEncoder)
         decoded_json = json.loads(json_data)
         decoded_json["coins"] = blockchain.coins
         decoded_json["locked_coins"] = blockchain.locked_coins

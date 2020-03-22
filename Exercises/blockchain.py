@@ -27,6 +27,9 @@ class Block:
             "nonce": nonce or 0
         }
 
+    def reprJSON(self):
+        return dict(hash=self.hash, index=self.index, transactions=self.transactions, header=self.header)
+
     @staticmethod
     def compute_hash(data):
         """
@@ -59,6 +62,10 @@ class Blockchain:
         self.forked_chains = {}
         self.create_genesis_block()
         self.coins = {}
+
+    def reprJSON(self):
+        return dict(unconfirmed_transactions=self.unconfirmed_transactions, locked_coins=self.locked_coins, chain=self.chain, coins=self.coins)
+
 
     # Add merkle tree made up on many transactions here
     def add_new_transaction(self, merkle_tree):
@@ -285,6 +292,7 @@ class Miner:
 # valueless_mk = MerkleTree([valueless_tx])
 # normal_mk = MerkleTree([normal_tx, normal_tx, normal_tx])
 # blockchain = Blockchain()
+# print(json.dumps(blockchain.__dict__, cls=ComplexEncoder))
 # print(blockchain.chain)
 # blockchain.add_new_transaction(valueless_mk)
 # blockchain.add_new_transaction(valueless_mk)
