@@ -32,6 +32,7 @@ CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 
 @app.route('/')
 def index():
+    print("blockheaders:")
     print(client.blockheaders)
     get_coins()
     return render_template('spv_index.html',
@@ -39,6 +40,7 @@ def index():
                                  'Decentralised Transaction Ledger',
                            peers = peers,
                            encoded_public_key = base64encoded_public_key,
+                           blockheaders = client.blockheaders,
                            public_keys = all_public_keys,
                            coins=client.coins,
                            node_address=CONNECTED_NODE_ADDRESS,

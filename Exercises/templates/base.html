@@ -7,15 +7,6 @@
     <p>Amount of SUTD coins: {{coins}}</p>
     <p>Your Encoded public key: {{encoded_public_key}}</p>
     <hr>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <ul>
-    {% for message in messages %}
-        <li>{{ message }} </li>
-    {% endfor %}
-    </ul>
-    {% endif %}
-    {% endwith %}
     {% block content %}{% endblock %}
   </body>
 </html>
