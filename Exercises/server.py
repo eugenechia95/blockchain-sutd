@@ -34,7 +34,9 @@ posts = []
 
 @app.route('/')
 def index():
+    print("forked chains:")
     print(blockchain.forked_chains)
+    print("chains:")
     print(blockchain.chain)
     return render_template('index.html',
                            title='SUTD COIN '
