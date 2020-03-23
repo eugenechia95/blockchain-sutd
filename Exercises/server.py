@@ -352,6 +352,7 @@ def announce_new_block(block):
     Other blocks can simply verify the proof of work and add it to their
     respective chains.
     """
+    print("announcing!")
     for peer in peers:
         url = "{}add_block".format(peer)
         headers = {'Content-Type': "application/json"}
