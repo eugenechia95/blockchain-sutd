@@ -9,6 +9,8 @@ curl -X POST \
   -H 'Content-Type: application/json' \
   -d '{"node_address": "http://127.0.0.1:8000"}'
 
+env FLASK_APP=server.py flask run --port 8000
+
 env FLASK_APP=server.py flask run --port 8001 
 
 env FLASK_APP=spv_server.py flask run --port 8002
