@@ -170,7 +170,12 @@ def mine_unconfirmed_transactions():
         if result == True:
             blockchain.forked = True
         if result == False:
-            return "Block #{} is mined.".format(blockchain.forked_chains[new_fork][-1].index)
+            print("here")
+            print(target_fork)
+            if target_fork == None or str(target_fork) =="":
+                return "Block #{} is mined.".format(blockchain.last_block.index)
+            else:
+                return "Block #{} is mined.".format(blockchain.forked_chains[new_fork][-1].index)
         chain_length = len(blockchain.chain)
         consensus()
         if chain_length == len(blockchain.chain):

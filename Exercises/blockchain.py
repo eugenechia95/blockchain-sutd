@@ -155,9 +155,14 @@ class Blockchain:
         """
 
         selected_fork = self.chain if target_fork == "main" else self.forked_chains[target_fork]
-        if new_fork == None:
+        print("this is new fork")
+        print(type(new_fork))
+        print(new_fork == None)
+        if new_fork == None or str(new_fork) =="":
             selected_chain = selected_fork
         else:
+            print("newfork created")
+            print(new_fork)
             index = len(selected_fork) if index == None else index
             self.forked_chains[new_fork] = copy.copy(selected_fork[0:index+1])
             selected_chain = self.forked_chains[new_fork]
@@ -165,7 +170,7 @@ class Blockchain:
         if index == None:
             previous_hash = self.last_block.hash if target_fork == "main" else selected_fork[-1].hash
         else:
-            previous_hash = selected_fork[0].hash if index == 0 else selected_fork[index-1].hash
+            previous_hash = selected_fork[index].hash
 
         if previous_hash != block.header["previous_hash"]:
             return False
@@ -238,11 +243,12 @@ class Blockchain:
         changed = False
         if self.forked_chains == {}:
             return None
+        self.forked_chains.pop(u'', None)
         for i in self.forked_chains.values():
             if len(i) > len(longest_chain):
                 longest_chain = i
                 changed = True
-        self.chain = longest_chain
+        self.chain = copy.copy(longest_chain)
         return changed
 
 class Miner:
@@ -263,22 +269,20 @@ class Miner:
             return False
 
         selected_transaction = blockchain.unconfirmed_transactions[0]
-        last_block = blockchain.last_block if target_fork == "main" else blockchain.forked_chains[target_fork][-1]
 
-        if index != None:
-            idx = index + 1
-        else:
-            idx = last_block.index + 1
+        selected_fork = blockchain.chain if target_fork == "main" else blockchain.forked_chains[target_fork]
 
-        if target_fork == "main":
-            new_block = Block(index=idx,
-                          transactions=selected_transaction,
-                          previous_hash=blockchain.chain[idx-1].hash)
+        # Change index to actual index required for forking
+        if index == None:
+            last_block = selected_fork[-1]
+            index = last_block.index
         else:
-            new_block = Block(index=idx,
+            last_block = selected_fork[index]
+
+
+        new_block = Block(index=index+1,
                             transactions=selected_transaction,
                             previous_hash=last_block.hash)
-
 
         proof = blockchain.proof_of_work(new_block)
         blockchain.add_block(self, new_block, proof, target_fork, new_fork, index)
