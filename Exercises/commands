@@ -15,3 +15,5 @@ env FLASK_APP=server.py flask run --port 8001
 
 env FLASK_APP=spv_server.py flask run --port 8002
 
+pip install –r requirements.txt 
+
