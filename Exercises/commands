@@ -1,19 +1,31 @@
+
+To register miner node on 8001 with miner node on 8000:
+
 curl -X POST \
   http://127.0.0.1:8001/register_with \
   -H 'Content-Type: application/json' \
   -d '{"node_address": "http://127.0.0.1:8000"}'
 
+To register SPV node on 8002 with miner node on 8000:
 
 curl -X POST \
   http://127.0.0.1:8002/spv_register_with \
   -H 'Content-Type: application/json' \
   -d '{"node_address": "http://127.0.0.1:8000"}'
 
+To run miner node 1:
+
 env FLASK_APP=server.py flask run --port 8000
+
+To run miner node 2:
 
 env FLASK_APP=server.py flask run --port 8001 
 
+To run spv client node:
+
 env FLASK_APP=spv_server.py flask run --port 8002
+
+To install packages:
 
 pip install –r requirements.txt 
 
