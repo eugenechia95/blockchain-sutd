@@ -26,6 +26,7 @@ peers.add(u"http://127.0.0.1:8000/")
 
 # The node with which the spv client interacts with, there can be multiple
 # such nodes as well.
+# Default connected_node_addr
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 
 
@@ -64,6 +65,7 @@ def get_coins():
     except Exception as e:
         return(str(e), 400)
 
+# endpoint that calls connected node to get all public keys
 @app.route('/get_public_keys')
 def get_public_keys():
     response = requests.get(CONNECTED_NODE_ADDRESS + "/return_public_keys")
@@ -71,7 +73,7 @@ def get_public_keys():
     all_public_keys.update(retrieved_public_keys)
     return redirect(url_for('index'))
 
-
+# endpoint that calls connected node to get all headers
 @app.route('/get_headers')
 def get_headers():
 
@@ -87,7 +89,7 @@ def get_headers():
         # if something goes wrong, pass it on to the API response
         return response.content, response.status_code
 
-
+# endpoint that sends transaction to connected node
 @app.route('/send_transaction', methods=['POST'])
 def send_transaction():
 
@@ -112,7 +114,7 @@ def send_transaction():
     except Exception as e:
         return(str(e), 400)
 
-
+# endpoint registers spv client with specified node
 @app.route('/spv_register_with', methods=['POST'])
 def spv_register_with_existing_node():
 

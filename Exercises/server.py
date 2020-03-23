@@ -109,6 +109,7 @@ def new_transaction():
     except Exception as e:
             return(str(e), 400)
 
+# endpoint for spv to submit new transaction
 @app.route('/spv_new_transaction', methods=['POST'])
 def spv_new_transaction():
     data = request.get_json()["root"]["data"]
@@ -137,13 +138,6 @@ def get_chain():
     final_json = json.dumps(decoded_json, sort_keys=True)
     print(final_json)
     return final_json
-    # for block in blockchain.chain:
-    #     chain_data.append(block.__dict__)
-    # return json.dumps({"length": len(chain_data),
-    #                    "chain": chain_data,
-    #                    "coins": blockchain.coins,
-    #                    "locked_coins": blockchain.locked_coins,
-    #                    "peers": list(peers)})
 
 
 # endpoint to request the node to mine the unconfirmed
