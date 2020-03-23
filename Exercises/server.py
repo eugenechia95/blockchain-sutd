@@ -185,6 +185,26 @@ def mine_unconfirmed_transactions():
             announce_new_block(blockchain.last_block)
         return "Block #{} is mined.".format(blockchain.last_block.index)
 
+# endpoint to request the node to selfish mine 3 unconfirmed transactions before announcing
+@app.route('/selfish_mine')
+def selfish_mine():
+    
+    miner.mine(blockchain, "main", "selfish_fork", None)
+    i = 0
+    while i<2:
+        miner.mine(blockchain, "selfish_fork", None, None)
+        i+=1
+
+    blockchain.forked = True
+    blockchain.resolve()
+
+    chain_length = len(blockchain.chain)
+    consensus()
+    if chain_length == len(blockchain.chain):
+        # announce the recently mined block to the network
+        announce_new_block(blockchain.last_block)
+    return "SELFISH MINING ROCKS! Block #{} is mined.".format(blockchain.last_block.index)
+
 
 # endpoint to add new peers to the network.
 @app.route('/register_node', methods=['POST'])
