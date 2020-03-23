@@ -44,7 +44,6 @@ def index():
                            peers = peers,
                            encoded_public_key = base64encoded_public_key,
                            public_keys = all_public_keys,
-                           chain = blockchain.chain,
                            forked_chains = blockchain.forked_chains.keys(),
                            forked = blockchain.forked,
                            current_length = len(blockchain.chain),
