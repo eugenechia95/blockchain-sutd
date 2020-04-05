@@ -53,7 +53,7 @@ contract CoinFlip is basicContract {
         expiration = Expiry.calculateExpiry();
     }
 
-    //Player A reveals bet and sees if player B manages to win by selecting same choice as playerA
+    //Alice reveals bet and sees if Bob manages to win by selecting same choice as playerA
     function reveal(bool choice, uint256 nonce) public {
         require(Bob != 0);
         require(now < expiration);
