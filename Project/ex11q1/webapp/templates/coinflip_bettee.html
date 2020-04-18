@@ -1,0 +1,216 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>blockchain</title>
+        <meta charset="utf-8" />
+    		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/main.css') }}" />
+        <script src="{{ url_for('static', filename='assets/js/jquery.min.js') }}"></script>
+  			<script src="{{ url_for('static', filename='assets/js/skel.min.js') }}"></script>
+  			<script src="{{ url_for('static', filename='assets/js/util.js') }}"></script>
+  			<script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+
+        <script lang="javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script lang="javascript">
+            var contract;
+
+            $(document).ready(function() {
+                if (typeof web3 !== 'undefined') {
+                    var sc_address = "{{contractAddress}}";
+                    var contractABI = web3.eth.contract(JSON.parse('{{contractABI | safe}}'));
+                    var contractInstance = contractABI.at(sc_address);
+                    contract = contractInstance;
+                    $("a#call_getOwner").click(function(){
+                        contractInstance.getOwner(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          } else {
+                              $("span#owner").text(result);
+                          }
+                        });
+                    });
+                    $("a#call_getBet").click(function(){
+                        contractInstance.getBet(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          } else {
+                              result = web3.fromWei(result, 'ether')
+                              $("span#betAmount").text(result);
+                          }
+                        });
+                    });
+                    $("a#call_getStatus").click(function(){
+                        contractInstance.getStatus(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          } else {
+                              $("span#betStatus").text(result);
+                          }
+                        });
+                    });
+                    $("a#call_getWinner").click(function(){
+                        contractInstance.getWinner(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          } else {
+                              $("span#winner").text(result);
+                          }
+                        });
+                    });
+                    $("a#call_cancelBet").click(function(){
+                        contractInstance.cancelBet(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          } else {
+                              $("span#betStatus").text(result);
+                          }
+                        });
+                    });
+                    $("a#call_takeBet").click(function(){
+                        var betChoice = $("select#takeChoice").val();
+                        var betValue = $("input#takeValue").val();
+                        if (betChoice == "false"){
+                          betChoice = false;
+                        }
+                        else {
+                          betChoice = true;
+                        }
+                        contractInstance.takeBet(betChoice, {from:web3.eth.accounts[0], value: web3.toWei(betValue, "ether")}, function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          }
+                        });
+                    });
+                    $("a#call_createBet").click(function(){
+                        var betChoice = $("select#betChoice").val();
+                        var newNumber = $("input#number").val();
+                        var betValue = $("input#betValue").val();
+                        if (betChoice == "false"){
+                          betChoice = false;
+                        }
+                        else {
+                          betChoice = true;
+                        }
+                        contractInstance.createBet(betChoice, newNumber, {from:web3.eth.accounts[0], value: web3.toWei(betValue, "ether")}, function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          }
+                        });
+                    });
+                    $("a#call_revealBet").click(function(){
+                        var betChoice = $("select#earlierChoice").val();
+                        var newNumber = $("input#earlierNumber").val();
+                        if (betChoice == "false"){
+                          betChoice = false;
+                        }
+                        else {
+                          betChoice = true;
+                        }
+                        contractInstance.reveal(betChoice, newNumber, {from:web3.eth.accounts[0]}, function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          }
+                        });
+                    });
+                    $("a#call_claimTimeout").click(function(){
+                        contractInstance.claimTimeout(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          }
+                        });
+                    });
+                }
+                else {
+                    alert("Please, install Metamask!");
+                }
+            });
+        </script>
+    </head>
+    <body class="subpage">
+      <!-- Header -->
+  			<header id="header">
+  				<div class="inner">
+  					<a href="coinflip.html" class="logo">CoinFlipping</a>
+  					<nav id="nav">
+  						<a href="index">Home</a>
+  						<a href="bettor">Bettor</a>
+  						<a href="bettee">Bettee</a>
+  					</nav>
+  					<a href="#navPanel" class="navPanelToggle"><span class="fa fa-bars"></span></a>
+  				</div>
+  			</header>
+
+        <section id="three" class="wrapper">
+  				<div class="inner">
+  					<header class="align-center">
+  						<h2>[BETTEE] CoinFlipping with Flask + Web3 + Metamask</h2>
+  					</header>
+            <div class="flex flex-2">
+              <article>
+                <header>
+                  <h2>Views</h2>
+                </header>
+                <header>
+                  <h3>Current Winner</h3>
+                  </header>
+                  <p><span id="winner">None</span><p>
+                  <footer>
+                    <a href="#" id="call_getWinner" class="button special">Current Winner</a>
+                  </footer>
+                  <br />
+                  <header>
+                    <h3>Current Bet Status</h3>
+                    </header>
+                    <p><span id="betStatus">None</span><p>
+                    <footer>
+                      <a href="#" id="call_getStatus" class="button special">Get Status</a>
+                    </footer>
+                    <br />
+                  <header>
+                  <h3>Current Bet Amount (Wei)</h3>
+                  </header>
+                  <p><span id="betAmount">None</span><p>
+                  <footer>
+                    <a href="#" id="call_getBet" class="button special">Get Bet Amount</a>
+                  </footer>
+                  <br>
+                <br />
+                <hr>
+                <header>
+                  <h2>Actions</h2>
+                </header>
+                <p>Take Bet 
+                  <select id="takeChoice">
+                    <option value=true>Heads</option>
+                    <option value=false>Tails</option>
+                  </select>
+                </p>
+                <p>Amount (Must be same as current bet amount) <input type="number" id="takeValue" value="0" /></p>
+                <footer>
+  								<a href="#" id="call_takeBet" class="button special">Take Bet</a>
+                </footer>
+                <br />
+                <br />
+                <footer>
+  								<a href="#" id="call_claimTimeout" class="button special">Claim Timeout</a>
+                </footer>
+                <br />
+                <br />
+  						</article>
+            </div>
+  				</div>
+  			</section>
+
+
+    </body>
+</html>
