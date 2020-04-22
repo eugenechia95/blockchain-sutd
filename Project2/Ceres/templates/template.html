@@ -5,8 +5,9 @@
         <meta charset="utf-8" />
     		<meta name="viewport" content="width=device-width, initial-scale=1" />
 
+        <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/gif" sizes="16x16">
         <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/bootstrap.css') }}" />
-        <!-- <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/main.css') }}" /> -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/main.css') }}" />
         <script src="{{ url_for('static', filename='assets/js/jquery.min.js') }}"></script>
   			<script src="{{ url_for('static', filename='assets/js/skel.min.js') }}"></script>
   			<script src="{{ url_for('static', filename='assets/js/util.js') }}"></script>
@@ -58,6 +59,42 @@
             });
         </script>
     </head>
-    <body class="subpage">
+    <body>
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">
+          <img id= "navImg" src="{{ url_for('static', filename='images/logo_transparent.png') }}">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+          <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Send Shipment<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Receive Shipment<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="#">View Shipments<span class="sr-only">(current)</span></a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="container welcome">
+        <img id= "homeImg" src="{{ url_for('static', filename='images/logo.png') }}">
+        <h1>Welcome to Ceres!</h1>
+        <h2>Ceres is an agricultural supply chain platform that connects all parties along the
+          agricultural supply chain, tracks digital footprint of products and handles payments
+          between parties
+        </h2>
+        <button type="button" class="btn btn-success homeButtons">Send Shipment</button>
+        <button type="button" class="btn btn-secondary homeButtons">Receive Shipment</button>
+        <button type="button" class="btn btn-info homeButtons">View Shipments</button>
+
+      </div>
+
     </body>
 </html>
