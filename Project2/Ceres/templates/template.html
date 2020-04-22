@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Ceres</title>
+        <meta charset="utf-8" />
+    		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/bootstrap.css') }}" />
+        <!-- <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/main.css') }}" /> -->
+        <script src="{{ url_for('static', filename='assets/js/jquery.min.js') }}"></script>
+  			<script src="{{ url_for('static', filename='assets/js/skel.min.js') }}"></script>
+  			<script src="{{ url_for('static', filename='assets/js/util.js') }}"></script>
+  			<script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+
+        <script lang="javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script lang="javascript">
+            var contract;
+
+            $(document).ready(function() {
+                if (typeof web3 !== 'undefined') {
+                    var sc_address = "{{contractAddress}}";
+                    var contractABI = web3.eth.contract(JSON.parse('{{contractABI | safe}}'));
+                    var contractInstance = contractABI.at(sc_address);
+                    contract = contractInstance;
+                    $("a#call_getOwner").click(function(){
+                        contractInstance.getOwner(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          } else {
+                              $("span#owner").text(result);
+                          }
+                        });
+                    });
+                    $("a#call_getNumber").click(function(){
+                        contractInstance.getNumber(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          } else {
+                              $("span#number").text(result);
+                          }
+                        });
+                    });
+                    $("a#call_setNumber").click(function(){
+                        var newNumber = $("input#number").val();
+                        contractInstance.setNumber(newNumber, {from:web3.eth.accounts[0]}, function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          }
+                        });
+                    });
+                }
+                else {
+                    alert("Please, install Metamask!");
+                }
+            });
+        </script>
+    </head>
+    <body class="subpage">
+    </body>
+</html>
