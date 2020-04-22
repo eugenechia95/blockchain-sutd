@@ -23,29 +23,11 @@
                     var contractABI = web3.eth.contract(JSON.parse('{{contractABI | safe}}'));
                     var contractInstance = contractABI.at(sc_address);
                     contract = contractInstance;
-                    $("a#call_getOwner").click(function(){
-                        contractInstance.getOwner(function(error, result){
-                          if (error) {
-                              alert("Please, connect to the network");
-                              reject(error);
-                          } else {
-                              $("span#owner").text(result);
-                          }
-                        });
-                    });
-                    $("a#call_getNumber").click(function(){
-                        contractInstance.getNumber(function(error, result){
-                          if (error) {
-                              alert("Please, connect to the network");
-                              reject(error);
-                          } else {
-                              $("span#number").text(result);
-                          }
-                        });
-                    });
-                    $("a#call_setNumber").click(function(){
-                        var newNumber = $("input#number").val();
-                        contractInstance.setNumber(newNumber, {from:web3.eth.accounts[0]}, function(error, result){
+                    $("a#submitButton").click(function(){
+                        var receiver = $("input#receiverAddress").val();
+                        var shipmentHash = $("input#shipmentHash").val();
+                        var amount = $("input#amount").val();
+                        contractInstance.sendShipment(receiver, shipmentHash, amount, {from:web3.eth.accounts[0]}, function(error, result){
                           if (error) {
                               alert("Please, connect to the network");
                               reject(error);
@@ -83,17 +65,22 @@
         </div>
       </nav>
 
-      <div class="container welcome">
-        <img id= "homeImg" src="{{ url_for('static', filename='images/logo.png') }}">
-        <h1>Welcome to Ceres!</h1>
-        <h2>Ceres is an agricultural supply chain platform that connects all parties along the
-          agricultural supply chain, tracks digital footprint of products and handles payments
-          between parties
-        </h2>
-        <a role="button" class="btn btn-success homeButtons" href="send">Send Shipment</a>
-        <a role="button" class="btn btn-secondary homeButtons" href="receive">Receive Shipment</a>
-        <a role="button" class="btn btn-info homeButtons" href="view_shipment">View Shipments</a>
-
+      <div class="container">
+        <form id="sendForm">
+          <div class="form-group">
+            <label for="receiverAddress">Receiver address</label>
+            <input type="text" class="form-control" id="receiverAddress" placeholder="Enter receiver address">
+          </div>
+          <div class="form-group">
+            <label for="shipmentHash">Shipment Hash</label>
+            <input type="test" class="form-control" id="shipmentHash" placeholder="Enter unique shipment hash">
+          </div>
+          <div class="form-group">
+            <label for="amount">Amount (in ether)</label>
+            <input pattern="^\d*(\.\d{0,2})?$" class="form-control" id="amount" placeholder="Enter amount to pay for shipment">
+          </div>
+          <a role="button" id="submitButton" class="btn btn-primary">Send Shipment</a>
+        </form>
       </div>
 
     </body>

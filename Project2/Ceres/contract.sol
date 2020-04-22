@@ -21,7 +21,7 @@ contract Transaction {
         owner = msg.sender;
     }
 
-    function sendShipment(address _receiver, address _sender, bytes32 _shipmentHash, uint256 _amount) public {
+    function sendShipment(address _receiver, bytes32 _shipmentHash, uint256 _amount) public {
         if (shipmentsCount != 0){
             require(shipments[shipmentsCount].status == true, "Shipment still in transit");
             require(msg.sender == shipments[shipmentsCount].receiver, "You do not possess the shipment");
@@ -31,7 +31,7 @@ contract Transaction {
             require(msg.sender == owner, "You do not possess the shipment");
         }
         shipmentsCount ++;
-        shipments[shipmentsCount] = Shipment(_receiver, _sender, _shipmentHash, _amount, false);
+        shipments[shipmentsCount] = Shipment(_receiver, msg.sender, _shipmentHash, _amount, false);
     }
 
     function receiveShipment(bytes32 _shipmentHash) public payable {
@@ -62,7 +62,7 @@ contract Transaction {
 
     function getCurrentOwner() public view returns(address) {
         if (shipmentsCount != 0){
-            if (shipments[shipmentsCount].status = true){
+            if (shipments[shipmentsCount].status == true){
                 return(shipments[shipmentsCount].receiver);
             }
             else{

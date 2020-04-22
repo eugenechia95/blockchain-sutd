@@ -31,5 +31,18 @@ transaction = w3.eth.contract(address=tx_receipt.contractAddress, abi=contract_i
 def hello():
     return render_template('template.html', contractAddress = transaction.address.lower(), contractABI = json.dumps(contract_interface['abi']))
 
+@app.route('/send')
+def send():
+    return render_template('send.html', contractAddress = transaction.address.lower(), contractABI = json.dumps(contract_interface['abi']))
+
+@app.route('/receive')
+def receive():
+    return render_template('template.html', contractAddress = transaction.address.lower(), contractABI = json.dumps(contract_interface['abi']))
+
+@app.route('/view_shipment')
+def view_shipment():
+    return render_template('view.html', contractAddress = transaction.address.lower(), contractABI = json.dumps(contract_interface['abi']))
+
+
 if __name__ == '__main__':
     app.run()

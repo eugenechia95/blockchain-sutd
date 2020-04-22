@@ -33,22 +33,57 @@
                           }
                         });
                     });
-                    $("a#call_getNumber").click(function(){
-                        contractInstance.getNumber(function(error, result){
+                    $("a#call_getCurrentOwner").click(function(){
+                        contractInstance.getCurrentOwner(function(error, result){
                           if (error) {
                               alert("Please, connect to the network");
                               reject(error);
                           } else {
-                              $("span#number").text(result);
+                              $("span#currentOwner").text(result);
                           }
                         });
                     });
-                    $("a#call_setNumber").click(function(){
-                        var newNumber = $("input#number").val();
-                        contractInstance.setNumber(newNumber, {from:web3.eth.accounts[0]}, function(error, result){
+                    $("a#call_getShipmentNumber").click(function(){
+                        contractInstance.getShipmentsCount(function(error, result){
                           if (error) {
                               alert("Please, connect to the network");
                               reject(error);
+                          } else {
+                              $("span#numberShipments").text(result);
+                          }
+                        });
+                    });
+                    $("a#call_getShipmentDetails").click(function(){
+                        contractInstance.getShipmentReceiver(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          } else {
+                              $("span#shipmentReceiver").text(result);
+                          }
+                        });
+                        contractInstance.getShipmentSender(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          } else {
+                              $("span#shipmentSender").text(result);
+                          }
+                        });
+                        contractInstance.getShipmentAmount(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          } else {
+                              $("span#shipmentAmount").text(result);
+                          }
+                        });
+                        contractInstance.getShipmentStatus(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          } else {
+                              $("span#shipmentStatus").text(result);
                           }
                         });
                     });
@@ -83,17 +118,37 @@
         </div>
       </nav>
 
-      <div class="container welcome">
-        <img id= "homeImg" src="{{ url_for('static', filename='images/logo.png') }}">
-        <h1>Welcome to Ceres!</h1>
-        <h2>Ceres is an agricultural supply chain platform that connects all parties along the
-          agricultural supply chain, tracks digital footprint of products and handles payments
-          between parties
-        </h2>
-        <a role="button" class="btn btn-success homeButtons" href="send">Send Shipment</a>
-        <a role="button" class="btn btn-secondary homeButtons" href="receive">Receive Shipment</a>
-        <a role="button" class="btn btn-info homeButtons" href="view_shipment">View Shipments</a>
+      <div class="container">
+        <div id="basicInfo">
+          <div class ="basicInfoDetail">
+            <p>First Sender:</p><span id="owner"></span>
+            <a role="button" id="call_getOwner" class="btn btn-primary">Get Sender</a>  
+          </div>
+          <div class ="basicInfoDetail">
+            <p>Current Owner:</p><span id="currentOwner"></span>
+            <a role="button" id="call_getCurrentOwner" class="btn btn-primary">Get Owner</a>  
+          </div>
+          <div class ="basicInfoDetail">
+            <p>Number of Shipments:</p><span id="numberShipments"></span>
+            <a role="button" id="call_getShipmentNumber" class="btn btn-primary">Get</a>  
+          </div>
+        </div>
 
+        <div>
+          <form id="sendForm">
+            <div class="form-group">
+              <label for="shipmentChoice">Select shipment to view details</label>
+              <input type="number" class="form-control" id="shipmentChoice">
+            </div>
+            <a role="button" id="call_getShipmentDetails" class="btn btn-primary">Get Details</a>
+          </form>
+          <div id="shipmentDetails">
+            <p>Receiver:</p><span id="shipmentReceiver"></span>
+            <p>Sender:</p><span id="shipmentSender"></span>
+            <p>Amount:</p><span id="shipmentAmount"></span>
+            <p>Status:</p><span id="shipmentStatus"></span>    
+          </div>
+        </div>
       </div>
 
     </body>
