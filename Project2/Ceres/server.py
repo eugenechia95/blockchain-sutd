@@ -37,7 +37,7 @@ def send():
 
 @app.route('/receive')
 def receive():
-    return render_template('template.html', contractAddress = transaction.address.lower(), contractABI = json.dumps(contract_interface['abi']))
+    return render_template('receive.html', contractAddress = transaction.address.lower(), contractABI = json.dumps(contract_interface['abi']))
 
 @app.route('/view_shipment')
 def view_shipment():

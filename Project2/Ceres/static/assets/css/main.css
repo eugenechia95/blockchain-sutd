@@ -28,8 +28,12 @@ body {
 	margin-top: 20px;
 }
 
-#basicInfo{
+#basicInfo, #sendDiv, #receiveDiv{
 	margin: 40px 0px;
+}
+
+#successAlert{
+	margin-top: 40px;
 }
 
 .basicInfoDetail {

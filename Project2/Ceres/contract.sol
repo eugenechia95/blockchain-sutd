@@ -16,7 +16,6 @@ contract Transaction {
 
     uint private shipmentsCount;
 
-
     constructor() public {
         owner = msg.sender;
     }
@@ -36,7 +35,7 @@ contract Transaction {
 
     function receiveShipment(bytes32 _shipmentHash) public payable {
         require(_shipmentHash == shipments[shipmentsCount].shipmentHash, "Wrong Shipment Hash!");
-        require(msg.value == shipments[shipmentsCount].amount, "Wrong payment amount");
+        require(msg.value/1e18 == shipments[shipmentsCount].amount, "Wrong payment amount");
         require(msg.sender == shipments[shipmentsCount].receiver, "You are not the correct receipient!");
 
         shipments[shipmentsCount].status = true;

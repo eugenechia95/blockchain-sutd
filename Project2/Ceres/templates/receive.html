@@ -11,7 +11,8 @@
         <script src="{{ url_for('static', filename='assets/js/jquery.min.js') }}"></script>
   			<script src="{{ url_for('static', filename='assets/js/skel.min.js') }}"></script>
   			<script src="{{ url_for('static', filename='assets/js/util.js') }}"></script>
-  			<script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+        <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+        <script src="{{ url_for('static', filename='assets/js/bootstrap.js') }}"></script>
 
         <script lang="javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
         <script lang="javascript">
@@ -24,12 +25,11 @@
                     var contractInstance = contractABI.at(sc_address);
                     contract = contractInstance;
                     $("a#submitButton").click(function(){
-                        var receiver = $("input#receiverAddress").val();
                         var shipmentHash = $("input#shipmentHash").val();
                         var amount = $("input#amount").val();
-                        contractInstance.sendShipment(receiver, shipmentHash, amount, {from:web3.eth.accounts[0]}, function(error, result){
+                        contractInstance.receiveShipment(shipmentHash, {from:web3.eth.accounts[0], value: web3.toWei(amount, "ether")}, function(error, result){
                           if (error) {
-                              alert("Please, connect to the network");
+                              console.log(error);
                               reject(error);
                           }
                           else {
@@ -72,13 +72,9 @@
         <div class="alert alert-success fade" id="successAlert" role="alert">
           This is a primary alert with <a href="#" class="alert-link">an example link</a>. Give it a click if you like.
         </div>
-        <div id="sendDiv">
-          <h3>Send Shipment</h3>
-          <form id="sendForm">
-            <div class="form-group">
-              <label for="receiverAddress">Receiver address</label>
-              <input type="text" class="form-control" id="receiverAddress" placeholder="Enter receiver address">
-            </div>
+        <div id="receiveDiv">
+          <h3>Receive Shipment</h3>
+          <form id="receiveForm">
             <div class="form-group">
               <label for="shipmentHash">Shipment Hash</label>
               <input type="test" class="form-control" id="shipmentHash" placeholder="Enter unique shipment hash">
