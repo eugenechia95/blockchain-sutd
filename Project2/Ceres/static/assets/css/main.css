@@ -25,10 +25,18 @@ body {
 }
 
 #sendForm{
-	margin-top: 40px;
+	margin-top: 20px;
 }
 
-#submitButton{
+#basicInfo{
+	margin: 40px 0px;
+}
+
+.basicInfoDetail {
+	margin-top: 20px;
+}
+
+#submitButton, #shipmentDetails{
 	margin-top: 30px;
 }
 

@@ -39,6 +39,9 @@
                               alert("Please, connect to the network");
                               reject(error);
                           } else {
+                              if (result == "0x0000000000000000000000000000000000000000"){
+                                  result = "Still in Transit"
+                                }
                               $("span#currentOwner").text(result);
                           }
                         });
@@ -54,7 +57,8 @@
                         });
                     });
                     $("a#call_getShipmentDetails").click(function(){
-                        contractInstance.getShipmentReceiver(function(error, result){
+                        var choice = $("input#shipmentChoice").val();
+                        contractInstance.getShipmentReceiver(choice, function(error, result){
                           if (error) {
                               alert("Please, connect to the network");
                               reject(error);
@@ -62,7 +66,7 @@
                               $("span#shipmentReceiver").text(result);
                           }
                         });
-                        contractInstance.getShipmentSender(function(error, result){
+                        contractInstance.getShipmentSender(choice, function(error, result){
                           if (error) {
                               alert("Please, connect to the network");
                               reject(error);
@@ -70,7 +74,7 @@
                               $("span#shipmentSender").text(result);
                           }
                         });
-                        contractInstance.getShipmentAmount(function(error, result){
+                        contractInstance.getShipmentAmount(choice, function(error, result){
                           if (error) {
                               alert("Please, connect to the network");
                               reject(error);
@@ -78,7 +82,7 @@
                               $("span#shipmentAmount").text(result);
                           }
                         });
-                        contractInstance.getShipmentStatus(function(error, result){
+                        contractInstance.getShipmentStatus(choice, function(error, result){
                           if (error) {
                               alert("Please, connect to the network");
                               reject(error);
@@ -120,21 +124,23 @@
 
       <div class="container">
         <div id="basicInfo">
+          <h3>Basic Info</h3>
           <div class ="basicInfoDetail">
-            <p>First Sender:</p><span id="owner"></span>
+            <p>First Sender: <span id="owner"></span></p>
             <a role="button" id="call_getOwner" class="btn btn-primary">Get Sender</a>  
           </div>
           <div class ="basicInfoDetail">
-            <p>Current Owner:</p><span id="currentOwner"></span>
+            <p>Current Owner: <span id="currentOwner"></span></p>
             <a role="button" id="call_getCurrentOwner" class="btn btn-primary">Get Owner</a>  
           </div>
           <div class ="basicInfoDetail">
-            <p>Number of Shipments:</p><span id="numberShipments"></span>
+            <p>Number of Shipments: <span id="numberShipments"></span></p>
             <a role="button" id="call_getShipmentNumber" class="btn btn-primary">Get</a>  
           </div>
         </div>
-
+        <hr style="height:3px;border-width:0; background-color:white">        
         <div>
+          <h3>Shipment Details</h3>
           <form id="sendForm">
             <div class="form-group">
               <label for="shipmentChoice">Select shipment to view details</label>
@@ -143,10 +149,10 @@
             <a role="button" id="call_getShipmentDetails" class="btn btn-primary">Get Details</a>
           </form>
           <div id="shipmentDetails">
-            <p>Receiver:</p><span id="shipmentReceiver"></span>
-            <p>Sender:</p><span id="shipmentSender"></span>
-            <p>Amount:</p><span id="shipmentAmount"></span>
-            <p>Status:</p><span id="shipmentStatus"></span>    
+            <p>Receiver: <span id="shipmentReceiver"></span></p>
+            <p>Sender: <span id="shipmentSender"></span></p>
+            <p>Amount: <span id="shipmentAmount"></span></p>
+            <p>Status: <span id="shipmentStatus"></span> </p>   
           </div>
         </div>
       </div>
