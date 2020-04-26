@@ -87,6 +87,12 @@
                               alert("Please, connect to the network");
                               reject(error);
                           } else {
+                              if (result == false){
+                                result = "Still in Transit"
+                              }
+                              else {
+                                result = "Shipment Transferred!"
+                              }
                               $("span#shipmentStatus").text(result);
                           }
                         });
