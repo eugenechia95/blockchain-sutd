@@ -24,7 +24,6 @@ contract Transaction {
         if (shipmentsCount != 0){
             require(shipments[shipmentsCount].status == true, "Shipment still in transit");
             require(msg.sender == shipments[shipmentsCount].receiver, "You do not possess the shipment");
-            require(_shipmentHash == shipments[shipmentsCount].shipmentHash, "Wrong Shipment Hash!");
         }
         else{
             require(msg.sender == owner, "You do not possess the shipment");
@@ -56,6 +55,7 @@ contract Transaction {
                 return(shipments[shipmentsCount].receiver);
             }
             else{
+                //Client app will process this result as "Still in Transit"
                 return(address(0));
             }
         }
@@ -66,8 +66,8 @@ contract Transaction {
 
     //Contract owner can destroy the contract if no shipments have been sent out yet.
     function shutdown() public {
-        require(msg.sender == owner);
-        require(shipmentsCount == 0);
+        require(msg.sender == owner, "You are not the contract owner!");
+        require(shipmentsCount == 0, "Shipments already sent out");
         selfdestruct(msg.sender);
     }
 
