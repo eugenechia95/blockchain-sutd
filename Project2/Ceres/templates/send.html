@@ -37,6 +37,17 @@
                           }
                         });
                     });
+                    $("a#destroyButton").click(function(){
+                        contractInstance.shutdown(function(error, result){
+                          if (error) {
+                              alert("Please, connect to the network");
+                              reject(error);
+                          }
+                          else {
+                            $("div#dangerAlert").addClass("show");
+                          }
+                        });
+                    });
                 }
                 else {
                     alert("Please, install Metamask!");
@@ -72,6 +83,9 @@
         <div class="alert alert-success fade" id="successAlert" role="alert">
           Shipment Sent!
         </div>
+        <div class="alert alert-danger fade" id="dangerAlert" role="alert">
+          Contract Destroyed!
+        </div>
         <div id="sendDiv">
           <h3>Send Shipment</h3>
           <form id="sendForm">
@@ -89,9 +103,15 @@
             </div>
             <a role="button" id="submitButton" class="btn btn-primary">Send Shipment</a>
           </form>
-  
+        </div>
+        <hr style="height:3px;border-width:0; background-color:white">
+        <br>        
+        <div id="destroyDiv">
+          <h3>Destroy Contract</h3>
+          <p>Only owners of the contract can destroy it. Once a shipment is sent out, the contract can no longer be destroyed!</p>
+          <br>
+          <a role="button" id="destroyButton" class="btn btn-danger">Destroy</a>
         </div>
       </div>
-
     </body>
 </html>

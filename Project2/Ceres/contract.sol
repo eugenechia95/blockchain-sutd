@@ -39,17 +39,8 @@ contract Transaction {
         require(msg.sender == shipments[shipmentsCount].receiver, "You are not the correct receipient!");
 
         shipments[shipmentsCount].status = true;
+        shipments[shipmentsCount].sender.transfer(msg.value);
     }
-
-    // function getShipmentDetails(uint index) public view returns( string[] memory) {
-    //     string[] memory details = new string[](4);
-    //     details[0] = toString(shipments[shipmentsCount].receiver);
-    //     details[1] = toString(shipments[shipmentsCount].sender);
-    //     details[2] = shipments[shipmentsCount].amount;
-    //     details[3] = shipments[shipmentsCount].status;
-    //     return(details);
-    // }
-
 
     function getShipmentsCount() public view returns(uint) {
         return(shipmentsCount);
@@ -71,6 +62,13 @@ contract Transaction {
         else{
             return(owner);
         }
+    }
+
+    //Contract owner can destroy the contract if no shipments have been sent out yet.
+    function shutdown() public {
+        require(msg.sender == owner);
+        require(shipmentsCount == 0);
+        selfdestruct(msg.sender);
     }
 
     /** Get Individual Shipment Details */
